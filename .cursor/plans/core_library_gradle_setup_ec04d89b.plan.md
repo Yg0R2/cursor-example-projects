@@ -3,52 +3,59 @@ name: Core Library Gradle Setup
 overview: Create a Gradle multi-module project with framework-agnostic core modules and Spring Boot 4.0.2 implementation modules, using Kotlin and Java 21.
 todos:
   - id: gradle-wrapper
-    content: Create gradle-wrapper.properties with Gradle 9.3.1
+    content: Create ./core-library/gradle/wrapper/gradle-wrapper.properties with Gradle 9.3.1
     status: pending
   - id: settings
-    content: Create settings.gradle.kts with all 12 module includes
+    content: Create ./core-library/settings.gradle.kts with all 12 module includes
     status: pending
   - id: root-build
-    content: Create root build.gradle.kts with shared Kotlin/Java 21 config
+    content: Create ./core-library/build.gradle.kts with shared Kotlin/Java 21 config
     status: pending
   - id: spring-platform
-    content: Create spring-core-platform module with java-platform and Spring Boot 4.0.2 BOM
+    content: Create ./core-library/spring-core-platform module with java-platform and Spring Boot 4.0.2 BOM
     status: pending
   - id: core-api
-    content: Create core-api module with ExampleRequest/ExampleResponse
+    content: Create ./core-library/core-api module with ExampleRequest/ExampleResponse
     status: pending
   - id: core-client
-    content: Create core-client module with ExampleClient
+    content: Create ./core-library/core-client module with ExampleClient
     status: pending
   - id: core-persistence
-    content: Create core-persistence module with ExampleEntity
+    content: Create ./core-library/core-persistence module with ExampleEntity
     status: pending
   - id: core-service
-    content: Create core-service module with ExampleService
+    content: Create ./core-library/core-service module with ExampleService
     status: pending
   - id: core-web
-    content: Create core-web module with ExampleRestController
+    content: Create ./core-library/core-web module with ExampleRestController
     status: pending
   - id: core-application
-    content: Create core-application module with ExampleApplication
+    content: Create ./core-library/core-application module with ExampleApplication
     status: pending
   - id: spring-modules
-    content: Create all 6 spring-core-* modules with proper dependencies (empty src)
+    content: Create all 6 ./core-library/spring-core-* modules with proper dependencies (empty src)
     status: pending
   - id: verify-build
-    content: Run gradle build to verify the setup compiles
+    content: Run gradle build in ./core-library to verify the setup compiles
     status: pending
 isProject: false
 ---
 
 # Core Library Gradle Multi-Module Project
 
+## Project Location
+
+The entire project will be created in `./core-library/` folder within the workspace:
+
+- **Workspace**: `c:\_projects\cursor-example-projects`
+- **Project root**: `c:\_projects\cursor-example-projects\core-library`
+
 ## Project Structure
 
 All modules live at the root level (no `impl/` folder):
 
 ```
-core-library/
+./core-library/
 ├── core-api/
 ├── core-client/
 ├── core-persistence/
@@ -191,10 +198,12 @@ Package structure: `com.example.core.<module>` (e.g., `com.example.core.api`)
 
 ## Files to Create
 
-1. `settings.gradle.kts` - project includes and naming
-2. `build.gradle.kts` - root build with shared config
-3. `gradle/wrapper/gradle-wrapper.properties` - Gradle 9.3.1
-4. 12 module directories, each with:
+All paths relative to `./core-library/`:
+
+1. `./core-library/settings.gradle.kts` - project includes and naming
+2. `./core-library/build.gradle.kts` - root build with shared config
+3. `./core-library/gradle/wrapper/gradle-wrapper.properties` - Gradle 9.3.1
+4. 12 module directories inside `./core-library/`, each with:
   - `build.gradle.kts`
   - `src/main/kotlin/com/example/core/<module>/` with example files (core modules only)
 
