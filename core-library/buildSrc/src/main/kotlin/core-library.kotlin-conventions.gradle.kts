@@ -1,5 +1,6 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
+    id("core-library.publishing-conventions")
 }
 
 group = property("group") as String
