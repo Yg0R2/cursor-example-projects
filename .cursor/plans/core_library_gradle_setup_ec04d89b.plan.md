@@ -4,40 +4,40 @@ overview: Create a Gradle multi-module project with framework-agnostic core modu
 todos:
   - id: gradle-wrapper
     content: Create ./core-library/gradle/wrapper/gradle-wrapper.properties with Gradle 9.3.1
-    status: pending
+    status: completed
   - id: settings
     content: Create ./core-library/settings.gradle.kts with all 12 module includes
-    status: pending
+    status: completed
   - id: root-build
     content: Create ./core-library/build.gradle.kts with shared Kotlin/Java 21 config
-    status: pending
+    status: completed
   - id: spring-platform
     content: Create ./core-library/spring-core-platform module with java-platform and Spring Boot 4.0.2 BOM
-    status: pending
+    status: completed
   - id: core-api
     content: Create ./core-library/core-api module with ExampleRequest/ExampleResponse
-    status: pending
+    status: completed
   - id: core-client
     content: Create ./core-library/core-client module with ExampleClient
-    status: pending
+    status: completed
   - id: core-persistence
     content: Create ./core-library/core-persistence module with ExampleEntity
-    status: pending
+    status: completed
   - id: core-service
     content: Create ./core-library/core-service module with ExampleService
-    status: pending
+    status: completed
   - id: core-web
     content: Create ./core-library/core-web module with ExampleRestController
-    status: pending
+    status: completed
   - id: core-application
     content: Create ./core-library/core-application module with ExampleApplication
-    status: pending
+    status: completed
   - id: spring-modules
     content: Create all 6 ./core-library/spring-core-* modules with proper dependencies (empty src)
-    status: pending
+    status: completed
   - id: verify-build
     content: Run gradle build in ./core-library to verify the setup compiles
-    status: pending
+    status: completed
 isProject: false
 ---
 
