@@ -1,5 +1,6 @@
 plugins {
-    id("org.springframework.boot") version "4.0.2"
+    id("core-library.spring-module-conventions")
+    alias(libs.plugins.spring.boot)
 }
 
 // Spring Core Application module - Spring Boot application bootstrap
@@ -17,5 +18,5 @@ dependencies {
     api(project(":core-application"))
     api(project(":spring-core-web"))
 
-    implementation("org.springframework.boot:spring-boot-starter")
+    implementation(libs.spring.boot.starter)
 }

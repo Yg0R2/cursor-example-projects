@@ -1,5 +1,5 @@
 plugins {
-    `java-platform`
+    id("core-library.platform-conventions")
 }
 
 javaPlatform {
@@ -8,5 +8,5 @@ javaPlatform {
 
 dependencies {
     // Import Spring Boot BOM for version management
-    api(platform("org.springframework.boot:spring-boot-dependencies:4.0.2"))
+    api(platform(libs.spring.boot.dependencies))
 }
