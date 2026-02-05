@@ -4,16 +4,16 @@ overview: Migrate the core-library project from Java 21 to Java 25 by updating t
 todos:
   - id: update-kotlin-version
     content: Update Kotlin version from 2.1.0 to 2.3.10 in `libs.versions.toml`
-    status: pending
+    status: completed
   - id: update-java-toolchain
     content: Update Java toolchain from 21 to 25 in `core-library.kotlin-conventions.gradle.kts`
-    status: pending
+    status: completed
   - id: update-jvm-target
     content: Update Kotlin JVM target from JVM_21 to JVM_25 in `core-library.kotlin-conventions.gradle.kts`
-    status: pending
+    status: completed
   - id: verify-build
     content: Run `./gradlew build` to verify the migration
-    status: pending
+    status: completed
 isProject: false
 ---
 

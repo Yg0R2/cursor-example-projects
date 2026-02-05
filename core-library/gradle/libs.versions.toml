@@ -1,6 +1,6 @@
 [versions]
 spring-boot = "4.0.2"
-kotlin = "2.1.0"
+kotlin = "2.3.10"
 
 [libraries]
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
