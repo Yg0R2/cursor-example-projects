@@ -4,37 +4,37 @@ overview: Create a new `service-template` Gradle multi-module project that mirro
 todos:
   - id: gradle-wrapper
     content: Copy Gradle wrapper (9.3.1) from core-library to service-template (gradlew, gradlew.bat, gradle/wrapper/)
-    status: pending
+    status: completed
   - id: root-build-files
     content: Create root settings.gradle.kts, build.gradle.kts, and gradle.properties
-    status: pending
+    status: completed
   - id: version-catalog
     content: "Create gradle/libs.versions.toml: kotlin + core-library versions, core-library module refs (no Spring version -- managed by BOM)"
-    status: pending
+    status: completed
   - id: buildsrc
     content: Create buildSrc with kotlin-conventions, spring-module-conventions, and publishing-conventions (publishing for all modules except application)
-    status: pending
+    status: completed
   - id: api-module
     content: Create api/ submodule with build.gradle.kts and placeholder source
-    status: pending
+    status: completed
   - id: client-module
     content: Create client/ submodule with build.gradle.kts and placeholder source
-    status: pending
+    status: completed
   - id: persistence-module
     content: Create persistence/ submodule with build.gradle.kts and placeholder source
-    status: pending
+    status: completed
   - id: service-module
     content: Create service/ submodule with build.gradle.kts and placeholder source
-    status: pending
+    status: completed
   - id: web-module
     content: Create web/ submodule with build.gradle.kts and placeholder source
-    status: pending
+    status: completed
   - id: application-module
     content: Create application/ submodule with build.gradle.kts (Spring Boot plugin, bootBuildImage for Docker, no publishing), @SpringBootApplication main class, and application.yml
-    status: pending
+    status: completed
   - id: verify-build
     content: Run gradle build to verify the service-template compiles against core-library from mavenLocal
-    status: pending
+    status: completed
 isProject: false
 ---
 
