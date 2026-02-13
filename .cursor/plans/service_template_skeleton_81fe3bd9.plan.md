@@ -9,10 +9,10 @@ todos:
     content: Create root settings.gradle.kts, build.gradle.kts, and gradle.properties
     status: pending
   - id: version-catalog
-    content: Create gradle/libs.versions.toml with same versions as core-library plus core-library module references
+    content: "Create gradle/libs.versions.toml: kotlin + core-library versions, core-library module refs (no Spring version -- managed by BOM)"
     status: pending
   - id: buildsrc
-    content: Create buildSrc with kotlin-conventions and spring-module-conventions (no publishing)
+    content: Create buildSrc with kotlin-conventions, spring-module-conventions, and publishing-conventions (publishing for all modules except application)
     status: pending
   - id: api-module
     content: Create api/ submodule with build.gradle.kts and placeholder source
@@ -30,7 +30,7 @@ todos:
     content: Create web/ submodule with build.gradle.kts and placeholder source
     status: pending
   - id: application-module
-    content: Create application/ submodule with build.gradle.kts, @SpringBootApplication main class, and application.yml
+    content: Create application/ submodule with build.gradle.kts (Spring Boot plugin, bootBuildImage for Docker, no publishing), @SpringBootApplication main class, and application.yml
     status: pending
   - id: verify-build
     content: Run gradle build to verify the service-template compiles against core-library from mavenLocal
@@ -97,9 +97,14 @@ service-template/
 
 The service-template does **not** create its own platform/BOM artifact. Instead, all modules reference `com.example.core:spring-core-platform` from mavenLocal for dependency version management.
 
-### 2. No publishing conventions
+### 2. Publishing conventions (library modules only)
 
-Unlike the core-library, the service-template is an application -- it does not publish library artifacts. No `maven-publish` plugin or publishing conventions are needed.
+All modules **except** `application` are published as library artifacts (to mavenLocal and later to an Artifactory). The `application` module is the deployable service -- it does **not** publish a JAR. Instead, it uses Spring Boot's `bootBuildImage` Gradle task to generate a Docker image.
+
+Convention plugins:
+
+- `service-template.publishing-conventions.gradle.kts` -- adapted from core-library's publishing conventions, applied by all library modules.
+- The `application` module does NOT apply publishing conventions.
 
 ### 3. Module naming
 
@@ -137,16 +142,44 @@ include("application")
 ```properties
 group=com.example.service
 version=0.0.1-SNAPSHOT
-coreLibraryVersion=0.0.1-SNAPSHOT
 ```
 
 ### Version catalog: `service-template/gradle/libs.versions.toml`
 
-Mirrors `core-library` versions:
+```toml
+[versions]
+kotlin = "2.3.10"
+core-library = "0.0.1-SNAPSHOT"
 
-- `spring-boot = "4.0.2"`, `kotlin = "2.3.10"`
-- Libraries: Spring Boot starters (same as core-library) + core-library modules referenced as external dependencies (`com.example.core:spring-core-api`, etc.)
-- Plugins: `kotlin-jvm`, `spring-boot`
+[libraries]
+# core-library platform BOM (manages all Spring + transitive versions)
+core-platform = { module = "com.example.core:spring-core-platform", version.ref = "core-library" }
+
+# core-library Spring modules (versions managed by the platform BOM above)
+core-api = { module = "com.example.core:spring-core-api" }
+core-client = { module = "com.example.core:spring-core-client" }
+core-persistence = { module = "com.example.core:spring-core-persistence" }
+core-service = { module = "com.example.core:spring-core-service" }
+core-web = { module = "com.example.core:spring-core-web" }
+core-application = { module = "com.example.core:spring-core-application" }
+
+# Spring Boot starters (versions managed by the platform BOM)
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+spring-boot = { id = "org.springframework.boot", version = "4.0.2" }
+```
+
+Key points:
+
+- **No `spring-boot` version variable** -- the Spring Boot plugin version is inlined in `[plugins]`; all Spring library versions are managed transitively by `spring-core-platform` BOM so no Spring version entry is needed in `[versions]`.
+- `**core-library` version** is defined in the catalog (not in `gradle.properties`), used only for the platform BOM reference which carries the version. All other core-library module references are version-less (resolved via the BOM).
+- **Kotlin version** is in the catalog for the Kotlin Gradle plugin.
 
 ### Gradle wrapper
 
@@ -158,18 +191,23 @@ Copy from `core-library/gradle/wrapper/` (Gradle 9.3.1) plus `gradlew` and `grad
 
 `**service-template/buildSrc/build.gradle.kts**` -- `kotlin-dsl` plugin + Kotlin Gradle plugin dependency (same pattern as [core-library buildSrc](core-library/buildSrc/build.gradle.kts)).
 
-`**service-template.kotlin-conventions.gradle.kts**` -- based on [core-library.kotlin-conventions.gradle.kts](core-library/buildSrc/src/main/kotlin/core-library.kotlin-conventions.gradle.kts) but:
+`**service-template.kotlin-conventions.gradle.kts**` -- based on [core-library.kotlin-conventions.gradle.kts](core-library/buildSrc/src/main/kotlin/core-library.kotlin-conventions.gradle.kts):
 
 - Applies `org.jetbrains.kotlin.jvm`
 - Sets Java 25 toolchain and Kotlin JVM 25 target
 - Adds `mavenCentral()` + `mavenLocal()` repositories
-- **No** publishing conventions
 
-`**service-template.spring-module-conventions.gradle.kts**` -- applies `service-template.kotlin-conventions` (mirrors [core-library.spring-module-conventions.gradle.kts](core-library/buildSrc/src/main/kotlin/core-library.spring-module-conventions.gradle.kts)).
+`**service-template.publishing-conventions.gradle.kts**` -- adapted from [core-library.publishing-conventions.gradle.kts](core-library/buildSrc/src/main/kotlin/core-library.publishing-conventions.gradle.kts):
+
+- Applies `maven-publish`
+- Publishes to mavenLocal (and later to a configurable Artifactory)
+- Applied by all library modules (api, client, persistence, service, web) but **not** by the application module
+
+`**service-template.spring-module-conventions.gradle.kts**` -- applies both `service-template.kotlin-conventions` and `service-template.publishing-conventions`. This is the standard convention for all publishable library modules.
 
 ### Sub-module build files
 
-Each module follows this pattern:
+All library modules use `service-template.spring-module-conventions` (which includes publishing). Each references the platform BOM via the version catalog:
 
 `**api/build.gradle.kts**`
 
@@ -178,21 +216,38 @@ plugins {
     id("service-template.spring-module-conventions")
 }
 dependencies {
-    api(platform("com.example.core:spring-core-platform:${property("coreLibraryVersion")}"))
-    api("com.example.core:spring-core-api")
+    api(platform(libs.core.platform))
+    api(libs.core.api)
     implementation(libs.spring.boot.starter.validation)
 }
 ```
 
-`**client/build.gradle.kts**` -- depends on `spring-core-client`, `:api`, `spring-boot-starter-webflux`
+`**client/build.gradle.kts**` -- depends on `libs.core.client`, `:api`, `libs.spring.boot.starter.webflux`
 
-`**persistence/build.gradle.kts**` -- depends on `spring-core-persistence`, `spring-boot-starter-data-jpa`
+`**persistence/build.gradle.kts**` -- depends on `libs.core.persistence`, `libs.spring.boot.starter.data.jpa`
 
-`**service/build.gradle.kts**` -- depends on `spring-core-service`, `:api`, `:persistence`, `spring-boot-starter`
+`**service/build.gradle.kts**` -- depends on `libs.core.service`, `:api`, `:persistence`, `libs.spring.boot.starter`
 
-`**web/build.gradle.kts**` -- depends on `spring-core-web`, `:service`, `spring-boot-starter-web`
+`**web/build.gradle.kts**` -- depends on `libs.core.web`, `:service`, `libs.spring.boot.starter.web`
 
-`**application/build.gradle.kts**` -- applies `spring-boot` plugin, depends on `spring-core-application`, `:web`, `spring-boot-starter`. Unlike core-library, `bootJar` stays **enabled** (this is an executable service).
+`**application/build.gradle.kts**` -- special: applies only `service-template.kotlin-conventions` (no publishing) plus the `spring-boot` plugin. Depends on `libs.core.application`, `:web`, `libs.spring.boot.starter`. `bootJar` stays **enabled**, `jar` is disabled. Configures `bootBuildImage` for Docker image generation:
+
+```kotlin
+plugins {
+    id("service-template.kotlin-conventions")
+    alias(libs.plugins.spring.boot)
+}
+dependencies {
+    api(platform(libs.core.platform))
+    api(libs.core.application)
+    api(project(":web"))
+    implementation(libs.spring.boot.starter)
+}
+tasks.named<Jar>("jar") { enabled = false }
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
+    imageName.set("${project.group}/${rootProject.name}")
+}
+```
 
 ### Skeleton source files
 
