@@ -7,5 +7,5 @@ dependencies {
     api(libs.core.service)
     api(project(":api"))
     api(project(":persistence"))
-    implementation(libs.spring.boot.starter)
+    implementation("org.springframework.boot:spring-boot-starter")
 }

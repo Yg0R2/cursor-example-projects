@@ -7,7 +7,7 @@ dependencies {
     api(platform(libs.core.platform))
     api(libs.core.application)
     api(project(":web"))
-    implementation(libs.spring.boot.starter)
+    implementation("org.springframework.boot:spring-boot-starter")
 }
 
 tasks.named<Jar>("jar") {

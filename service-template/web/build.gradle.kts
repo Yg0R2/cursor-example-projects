@@ -6,5 +6,5 @@ dependencies {
     api(platform(libs.core.platform))
     api(libs.core.web)
     api(project(":service"))
-    implementation(libs.spring.boot.starter.web)
+    implementation("org.springframework.boot:spring-boot-starter-web")
 }
