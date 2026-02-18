@@ -1,19 +1,5 @@
 [versions]
 kotlin = "2.3.10"
-core-library = "0.0.1-SNAPSHOT"
-
-[libraries]
-# core-library platform BOM (manages all Spring + transitive versions)
-core-platform = { module = "com.example.core:spring-core-platform", version.ref = "core-library" }
-
-# core-library Spring modules (same version as core-library)
-core-api = { module = "com.example.core:spring-core-api", version.ref = "core-library" }
-core-client = { module = "com.example.core:spring-core-client", version.ref = "core-library" }
-core-persistence = { module = "com.example.core:spring-core-persistence", version.ref = "core-library" }
-core-service = { module = "com.example.core:spring-core-service", version.ref = "core-library" }
-core-web = { module = "com.example.core:spring-core-web", version.ref = "core-library" }
-core-application = { module = "com.example.core:spring-core-application", version.ref = "core-library" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-spring-boot = { id = "org.springframework.boot", version = "4.0.2" }

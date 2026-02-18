@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    api(platform(libs.core.platform))
-    api(libs.core.service)
+    api(platform(coreLibs.core.platform))
+    api(coreLibs.core.service)
     api(project(":api"))
     api(project(":persistence"))
     implementation("org.springframework.boot:spring-boot-starter")

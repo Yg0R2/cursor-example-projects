@@ -1,11 +1,11 @@
 plugins {
     id("service-template.kotlin-conventions")
-    alias(libs.plugins.spring.boot)
+    alias(coreLibs.plugins.spring.boot)
 }
 
 dependencies {
-    api(platform(libs.core.platform))
-    api(libs.core.application)
+    api(platform(coreLibs.core.platform))
+    api(coreLibs.core.application)
     api(project(":web"))
     implementation("org.springframework.boot:spring-boot-starter")
 }

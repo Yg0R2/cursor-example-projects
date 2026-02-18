@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    api(platform(libs.core.platform))
-    api(libs.core.client)
+    api(platform(coreLibs.core.platform))
+    api(coreLibs.core.client)
     api(project(":api"))
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 }
