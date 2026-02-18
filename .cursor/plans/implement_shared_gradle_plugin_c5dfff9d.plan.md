@@ -244,15 +244,21 @@ This is optional -- projects can still include modules manually if they need a d
 
 ## 4. Adapting core-library
 
-After publishing `example-plugin` to mavenLocal, core-library's `buildSrc` depends on it. The `kotlin-gradle-plugin` is no longer declared explicitly -- it arrives as a transitive dependency of `example-plugin`. The version catalog reference in buildSrc is removed entirely.
+After publishing `example-plugin` to mavenLocal, core-library's `buildSrc` depends on it. The `kotlin-gradle-plugin` is no longer declared explicitly -- it arrives as a transitive dependency of `example-plugin`. The local TOML file is imported as `coreLibs` so that thin wrapper convention plugins have a consistent catalog accessor matching the name service-template uses.
 
-- **[core-library/buildSrc/settings.gradle.kts](core-library/buildSrc/settings.gradle.kts)** -- remove the `dependencyResolutionManagement` / `versionCatalogs` block (no longer needed):
+- **[core-library/buildSrc/settings.gradle.kts](core-library/buildSrc/settings.gradle.kts)** -- import the local TOML as `coreLibs` (renamed from `libs`). Since buildSrc cannot depend on the `version-catalog` subproject (lifecycle constraint), it reads the same source file directly:
 
 ```kotlin
-// empty or removed -- no version catalog needed in buildSrc
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("coreLibs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
+}
 ```
 
-- **[core-library/buildSrc/build.gradle.kts](core-library/buildSrc/build.gradle.kts)** -- only the plugin dependency remains:
+- **[core-library/buildSrc/build.gradle.kts](core-library/buildSrc/build.gradle.kts)** -- only the plugin dependency; `kotlin-gradle-plugin` comes transitively from `example-plugin`:
 
 ```kotlin
 plugins {
@@ -289,15 +295,27 @@ The GitHub Packages repository is added via a separate project-specific wrapper 
 
 ## 5. Adapting service-template
 
-The same simplification applies. The `kotlin-gradle-plugin` comes transitively from `example-plugin`, and the local `gradle/libs.versions.toml` (which only declared the Kotlin version) can be deleted.
+The same simplification applies. The `kotlin-gradle-plugin` comes transitively from `example-plugin`. The buildSrc imports the **published** version catalog artifact as `coreLibs`, matching the accessor name used by core-library's buildSrc and the main settings. The local `gradle/libs.versions.toml` (which only declared the Kotlin version) can be deleted.
 
-- **[service-template/buildSrc/settings.gradle.kts](service-template/buildSrc/settings.gradle.kts)** -- remove the `dependencyResolutionManagement` / `versionCatalogs` block:
+- **[service-template/buildSrc/settings.gradle.kts](service-template/buildSrc/settings.gradle.kts)** -- consume the published version catalog artifact as `coreLibs`:
 
 ```kotlin
-// empty or removed -- no version catalog needed in buildSrc
+val coreCatalogVersion: String by settings
+
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    versionCatalogs {
+        create("coreLibs") {
+            from("com.example.core:version-catalog:$coreCatalogVersion")
+        }
+    }
+}
 ```
 
-- **[service-template/buildSrc/build.gradle.kts](service-template/buildSrc/build.gradle.kts)** -- only the plugin dependency remains:
+- **[service-template/buildSrc/build.gradle.kts](service-template/buildSrc/build.gradle.kts)** -- only the plugin dependency; `kotlin-gradle-plugin` comes transitively from `example-plugin`:
 
 ```kotlin
 plugins {
@@ -328,9 +346,10 @@ dependencies {
 
 ## Key Design Decisions
 
-- **Kotlin version is pinned in the plugin** (2.3.10) as a compile-time dependency of the convention plugins. Upgrading Kotlin means publishing a new plugin version. Both projects' buildSrc files rely on this transitive dependency -- no explicit `kotlin-gradle-plugin` declaration or version catalog reference in buildSrc.
+- **Kotlin version is pinned in the plugin** (2.3.10) as a compile-time dependency of the convention plugins. Upgrading Kotlin means publishing a new plugin version. Both projects' buildSrc files rely on this transitive dependency -- no explicit `kotlin-gradle-plugin` declaration needed.
+- `**coreLibs` is the consistent catalog accessor name** in both projects' buildSrc. core-library reads the local TOML file directly (can't depend on its own `version-catalog` subproject due to Gradle lifecycle). service-template resolves the published version catalog artifact. Both expose the same entries under `coreLibs`, available for thin wrapper convention plugins.
 - **Publishing repos are NOT in the shared plugin** -- only mavenLocal is included. GitHub Packages and Artifactory are project-specific concerns.
 - **Version catalog stays in core-library** -- the plugin manages build conventions only, not dependency versions.
 - **The settings plugin is opt-in** -- projects with non-standard module layouts (like core-library with 14 modules) can skip it and include modules manually.
-- **service-template's local `gradle/libs.versions.toml` is deleted** -- it only existed for the Kotlin version, which is now supplied transitively by `example-plugin`.
+- **service-template's local `gradle/libs.versions.toml` is deleted** -- it only existed for the Kotlin version, which is now supplied transitively by `example-plugin`. The `coreLibs` catalog (from the published artifact) replaces it in buildSrc.
 
