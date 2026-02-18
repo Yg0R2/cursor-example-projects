@@ -1,8 +1,17 @@
 [versions]
 spring-boot = "4.0.2"
 kotlin = "2.3.10"
+core-library = "0.0.1-SNAPSHOT"
 
 [libraries]
+# Consumer entries for spring-core-platform and core modules (version from catalog)
+core-platform = { module = "com.example.core:spring-core-platform", version.ref = "core-library" }
+core-api = { module = "com.example.core:spring-core-api", version.ref = "core-library" }
+core-client = { module = "com.example.core:spring-core-client", version.ref = "core-library" }
+core-persistence = { module = "com.example.core:spring-core-persistence", version.ref = "core-library" }
+core-service = { module = "com.example.core:spring-core-service", version.ref = "core-library" }
+core-web = { module = "com.example.core:spring-core-web", version.ref = "core-library" }
+core-application = { module = "com.example.core:spring-core-application", version.ref = "core-library" }
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
 spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }

@@ -8,6 +8,9 @@ include("core-service")
 include("core-web")
 include("core-application")
 
+// Version catalog (published for consumers)
+include("version-catalog")
+
 // Spring implementation modules
 include("spring-core-platform")
 include("spring-core-api")
