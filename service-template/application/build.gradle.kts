@@ -8,6 +8,7 @@ dependencies {
     api(coreLibs.core.application)
     api(project(":web"))
     implementation("org.springframework.boot:spring-boot-starter")
+    runtimeOnly("com.h2database:h2")
 }
 
 tasks.named<Jar>("jar") {
