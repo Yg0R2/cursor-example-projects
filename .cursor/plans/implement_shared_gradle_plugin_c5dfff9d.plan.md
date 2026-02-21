@@ -4,28 +4,28 @@ overview: Create a standalone Gradle plugin project in `./example-plugin` that e
 todos:
   - id: scaffold-plugin
     content: Create example-plugin/ directory with build.gradle.kts, settings.gradle.kts, gradle.properties, gradle/libs.versions.toml, and Gradle wrapper (9.3.1)
-    status: pending
+    status: completed
   - id: kotlin-conventions
     content: Implement example.kotlin-conventions.gradle.kts -- Kotlin JVM, Java 25 toolchain, JVM 25 target, repos, group/version
-    status: pending
+    status: completed
   - id: publishing-conventions
     content: Implement example.publishing-conventions.gradle.kts -- maven-publish with auto-detect component, mavenLocal, SNAPSHOT-guarded remote repo via properties
-    status: pending
+    status: completed
   - id: spring-module-conventions
     content: Implement example.spring-module-conventions.gradle.kts -- composes kotlin + publishing
-    status: pending
+    status: completed
   - id: platform-conventions
     content: Implement example.platform-conventions.gradle.kts -- java-platform + publishing
-    status: pending
+    status: completed
   - id: adapt-core-library
     content: Adapt core-library -- remove all buildSrc convention plugins, add example-plugin version to TOML, switch all subproject build files to example.* plugin IDs, add publishing properties to gradle.properties
-    status: pending
+    status: completed
   - id: adapt-service-template
     content: Adapt service-template -- remove all buildSrc convention plugins, create gradle/libs.versions.toml with example-plugin version, update buildSrc to use libs + coreLibs catalogs, switch subproject build files to example.* plugin IDs
-    status: pending
+    status: completed
   - id: verify-build
     content: Publish example-plugin to mavenLocal, then verify both core-library and service-template build successfully
-    status: pending
+    status: completed
 isProject: false
 ---
 

@@ -1,5 +1,5 @@
 plugins {
-    id("core-library.spring-module-conventions")
+    id("example.spring-module-conventions")
 }
 
 // Spring Core Client module - Spring WebClient/RestClient implementations

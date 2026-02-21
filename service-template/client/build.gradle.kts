@@ -1,5 +1,5 @@
 plugins {
-    id("service-template.spring-module-conventions")
+    id("example.spring-module-conventions")
 }
 
 dependencies {

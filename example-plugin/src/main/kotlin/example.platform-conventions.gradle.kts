@@ -1,6 +1,6 @@
 plugins {
     id("java-platform")
-    id("core-library.publishing-conventions")
+    id("example.publishing-conventions")
 }
 
 group = property("group") as String

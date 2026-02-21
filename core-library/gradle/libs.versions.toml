@@ -1,7 +1,7 @@
 [versions]
 spring-boot = "4.0.2"
-kotlin = "2.3.10"
 core-library = "0.0.1-SNAPSHOT"
+example-plugin = "0.0.1-SNAPSHOT"
 
 [libraries]
 # Consumer entries for spring-core-platform and core modules (version from catalog)
@@ -12,6 +12,7 @@ core-persistence = { module = "com.example.core:spring-core-persistence", versio
 core-service = { module = "com.example.core:spring-core-service", version.ref = "core-library" }
 core-web = { module = "com.example.core:spring-core-web", version.ref = "core-library" }
 core-application = { module = "com.example.core:spring-core-application", version.ref = "core-library" }
+example-plugin = { module = "com.example.gradle:example-plugin", version.ref = "example-plugin" }
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
 spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
@@ -20,5 +21,4 @@ spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-
 spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

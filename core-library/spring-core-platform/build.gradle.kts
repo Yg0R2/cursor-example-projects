@@ -1,5 +1,5 @@
 plugins {
-    id("core-library.platform-conventions")
+    id("example.platform-conventions")
 }
 
 javaPlatform {

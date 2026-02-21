@@ -1,5 +1,5 @@
 plugins {
-    id("core-library.kotlin-conventions")
+    id("example.spring-module-conventions")
 }
 
 // Core Application module - framework-agnostic application interfaces

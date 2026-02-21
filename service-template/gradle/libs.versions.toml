@@ -1,5 +1,9 @@
 [versions]
-kotlin = "2.3.10"
+example-plugin = "0.0.1-SNAPSHOT"
+
+[libraries]
+example-plugin = { module = "com.example.gradle:example-plugin", version.ref = "example-plugin" }
+# Additional service-specific dependencies can be added here
 
 [plugins]
-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+# Additional service-specific plugins can be added here

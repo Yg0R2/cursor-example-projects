@@ -1,5 +1,5 @@
 plugins {
-    id("service-template.kotlin-conventions")
+    id("example.kotlin-conventions")
     alias(coreLibs.plugins.spring.boot)
 }
 

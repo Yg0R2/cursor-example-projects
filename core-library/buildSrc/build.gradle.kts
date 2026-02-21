@@ -5,8 +5,9 @@ plugins {
 repositories {
     gradlePluginPortal()
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
+    implementation(coreLibs.example.plugin)
 }
