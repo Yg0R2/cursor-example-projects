@@ -92,11 +92,14 @@ example-plugin/
 
 ## 2. Plugin Build Configuration
 
-`**example-plugin/gradle/libs.versions.toml**` -- single source of truth for the Kotlin Gradle plugin version used by the convention plugins:
+`**example-plugin/gradle/libs.versions.toml**` -- single source of truth for the Kotlin Gradle plugin used by the convention plugins:
 
 ```toml
 [versions]
 kotlin = "2.3.10"
+
+[libraries]
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ```
 
 `**example-plugin/settings.gradle.kts**`:
@@ -107,7 +110,7 @@ rootProject.name = "example-plugin"
 
 Note: no explicit `dependencyResolutionManagement` block is needed. The `kotlin-dsl` plugin automatically resolves `gradle/libs.versions.toml` as the default `libs` catalog.
 
-`**example-plugin/build.gradle.kts**` -- uses `libs.versions.kotlin` from the TOML:
+`**example-plugin/build.gradle.kts**` -- uses `libs.kotlin.gradle.plugin` from the TOML:
 
 ```kotlin
 plugins {
@@ -115,16 +118,13 @@ plugins {
     `maven-publish`
 }
 
-group = "com.example.gradle"
-version = "0.0.1-SNAPSHOT"
-
 repositories {
     gradlePluginPortal()
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
+    implementation(libs.kotlin.gradle.plugin)
 }
 
 publishing {
@@ -262,17 +262,23 @@ After publishing `example-plugin` to mavenLocal, **all four convention plugins i
 
 ### Version catalog and buildSrc
 
-- **[core-library/gradle/libs.versions.toml](core-library/gradle/libs.versions.toml)** -- add the `example-plugin` version so buildSrc can reference it:
+- **[core-library/gradle/libs.versions.toml](core-library/gradle/libs.versions.toml)** -- remove the `kotlin` version and `kotlin-jvm` plugin entry (the Kotlin version is now managed by `example-plugin`), and add the `example-plugin` version so buildSrc can reference it:
 
 ```toml
 [versions]
 spring-boot = "4.0.2"
-kotlin = "2.3.10"
 core-library = "0.0.1-SNAPSHOT"
 example-plugin = "0.0.1-SNAPSHOT"
 
-# ... rest unchanged ...
+[libraries]
+example-plugin = { module = "com.example.gradle:example-plugin", version.ref = "example-plugin" }
+# ... existing library entries unchanged ...
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 ```
+
+Removed entries: `kotlin = "2.3.10"` from `[versions]` and `kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }` from `[plugins]`. Neither is used by any subproject build file -- the Kotlin plugin is always applied internally by `example-plugin`'s convention plugins.
 
 - **[core-library/buildSrc/settings.gradle.kts](core-library/buildSrc/settings.gradle.kts)** -- import the local TOML as `coreLibs` (renamed from `libs`). Since buildSrc cannot depend on the `version-catalog` subproject (Gradle lifecycle constraint), it reads the same source file directly:
 
@@ -300,7 +306,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.example.gradle:example-plugin:${coreLibs.versions.example.plugin.get()}")
+    implementation(coreLibs.example.plugin)
 }
 ```
 
@@ -377,6 +383,7 @@ The same approach: **all three convention plugins in service-template's buildSrc
 example-plugin = "0.0.1-SNAPSHOT"
 
 [libraries]
+example-plugin = { module = "com.example.gradle:example-plugin", version.ref = "example-plugin" }
 # Additional service-specific dependencies can be added here
 
 [plugins]
@@ -418,7 +425,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.example.gradle:example-plugin:${libs.versions.example.plugin.get()}")
+    implementation(libs.example.plugin)
 }
 ```
 
@@ -466,7 +473,7 @@ plugins {
 
 ## Key Design Decisions
 
-- **Kotlin version is defined in `example-plugin/gradle/libs.versions.toml**` and used to declare the `kotlin-gradle-plugin` dependency. Upgrading Kotlin means updating this TOML and publishing a new plugin version. Both projects get the new version transitively.
+- **Kotlin version is defined solely in `example-plugin/gradle/libs.versions.toml**` and used to declare the `kotlin-gradle-plugin` library dependency. Upgrading Kotlin means updating this TOML and publishing a new plugin version. Both projects get the new version transitively. The `kotlin` version and `kotlin-jvm` plugin entries are removed from `core-library/gradle/libs.versions.toml` (and thus from the published version catalog) to avoid having two sources of truth.
 - `**coreLibs` is the consistent catalog accessor name** in both projects' buildSrc. core-library reads the local TOML file directly (can't depend on its own `version-catalog` subproject due to Gradle lifecycle). service-template resolves the published version catalog artifact. Both expose the same catalog entries under `coreLibs`.
 - `**coreCatalogVersion` must stay in `gradle.properties**` for service-template because it is needed during settings evaluation (before any TOML catalog is available). The example-plugin version and additional dependencies go into `gradle/libs.versions.toml`.
 - **Publishing conventions include SNAPSHOT-guarded remote repo** configured via `gradle.properties` (`publishing.repository.url`, `publishing.repository.name`, credentials via env vars or properties). No thin wrapper convention plugins needed -- projects just set the properties.
