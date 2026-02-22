@@ -258,7 +258,7 @@ repositories {
 
 ## 4. Adapting core-library
 
-After publishing `example-plugin` to mavenLocal, **all four convention plugins in core-library's buildSrc are removed**. Subproject build files switch directly to the `example.*` plugin IDs. No thin wrappers are needed because the shared publishing-conventions now includes the SNAPSHOT-guarded remote repository logic (configured via `gradle.properties`).
+After publishing `example-plugin` to mavenLocal, **all four convention plugins in core-library's buildSrc are removed**. Subproject build files switch directly to the `example.`* plugin IDs. No thin wrappers are needed because the shared publishing-conventions now includes the SNAPSHOT-guarded remote repository logic (configured via `gradle.properties`).
 
 ### Version catalog and buildSrc
 
@@ -335,7 +335,7 @@ publishing.repository.name=GitHubPackages
 Every subproject switches from `core-library.*` to `example.*` plugin IDs:
 
 - **All core modules and spring modules** (`core-api`, `core-client`, `core-persistence`, `core-service`, `core-web`, `core-application`, `spring-core-api`, `spring-core-client`, `spring-core-persistence`, `spring-core-service`, `spring-core-web`, `spring-core-application`): change `id("core-library.kotlin-conventions")` or `id("core-library.spring-module-conventions")` to `id("example.spring-module-conventions")`.
-- `**spring-core-platform**`: change `id("core-library.platform-conventions")` to `id("example.platform-conventions")`.
+- `**spring-core-platform`**: change `id("core-library.platform-conventions")` to `id("example.platform-conventions")`.
 - `**version-catalog**`: unchanged (uses `version-catalog` + `maven-publish` directly, not our convention plugins).
 
 Example -- `spring-core-api/build.gradle.kts` before and after:
@@ -368,7 +368,7 @@ plugins {
 
 ## 5. Adapting service-template
 
-The same approach: **all three convention plugins in service-template's buildSrc are removed**. Subproject build files switch directly to the `example.*` plugin IDs.
+The same approach: **all three convention plugins in service-template's buildSrc are removed**. Subproject build files switch directly to the `example.`* plugin IDs.
 
 ### Where `coreCatalogVersion` is defined
 
@@ -473,10 +473,10 @@ plugins {
 
 ## Key Design Decisions
 
-- **Kotlin version is defined solely in `example-plugin/gradle/libs.versions.toml**` and used to declare the `kotlin-gradle-plugin` library dependency. Upgrading Kotlin means updating this TOML and publishing a new plugin version. Both projects get the new version transitively. The `kotlin` version and `kotlin-jvm` plugin entries are removed from `core-library/gradle/libs.versions.toml` (and thus from the published version catalog) to avoid having two sources of truth.
+- **Kotlin version is defined solely in `example-plugin/gradle/libs.versions.toml`** and used to declare the `kotlin-gradle-plugin` library dependency. Upgrading Kotlin means updating this TOML and publishing a new plugin version. Both projects get the new version transitively. The `kotlin` version and `kotlin-jvm` plugin entries are removed from `core-library/gradle/libs.versions.toml` (and thus from the published version catalog) to avoid having two sources of truth.
 - `**coreLibs` is the consistent catalog accessor name** in both projects' buildSrc. core-library reads the local TOML file directly (can't depend on its own `version-catalog` subproject due to Gradle lifecycle). service-template resolves the published version catalog artifact. Both expose the same catalog entries under `coreLibs`.
-- `**coreCatalogVersion` must stay in `gradle.properties**` for service-template because it is needed during settings evaluation (before any TOML catalog is available). The example-plugin version and additional dependencies go into `gradle/libs.versions.toml`.
+- `**coreCatalogVersion` must stay in `gradle.properties`** for service-template because it is needed during settings evaluation (before any TOML catalog is available). The example-plugin version and additional dependencies go into `gradle/libs.versions.toml`.
 - **Publishing conventions include SNAPSHOT-guarded remote repo** configured via `gradle.properties` (`publishing.repository.url`, `publishing.repository.name`, credentials via env vars or properties). No thin wrapper convention plugins needed -- projects just set the properties.
-- **All buildSrc convention plugins are removed** from both projects. Subproject build files use `example.*` plugin IDs directly.
+- **All buildSrc convention plugins are removed** from both projects. Subproject build files use `example.`* plugin IDs directly.
 - **Version catalog stays in core-library** -- the plugin manages build conventions only, not dependency versions.
 
