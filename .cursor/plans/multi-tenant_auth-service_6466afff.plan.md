@@ -6,10 +6,10 @@ todos:
     content: "Scaffold auth-service/ project: build.gradle.kts, settings.gradle.kts (include api, jwt-api, jwt-impl, persistence, service, web, application), gradle.properties, gradle/libs.versions.toml, buildSrc/, Gradle wrapper (copy from service-template)"
     status: pending
   - id: api-module
-    content: "Create api/ module: AuthToken, SessionData, Tenant, LoginRequest/Response, LogoutRequest, exception classes"
+    content: "Create api/ module: LoginRequest/Response, LogoutRequest (REST DTOs only)"
     status: pending
   - id: jwt-api-module
-    content: "Create jwt-api/ module: JwtService interface, JwtProperties interface, JwtTokenProvider interface -- depends on api/"
+    content: "Create jwt-api/ module: AuthToken, SessionData, Tenant, exception classes, JwtService/JwtProperties/JwtTokenProvider interfaces -- no api dependency"
     status: pending
   - id: jwt-impl-module
     content: "Create jwt-impl/ module: JwtServiceImpl (JJWT-based), depends on jwt-api and jjwt-*; no dependency from service on jwt-impl"
@@ -48,8 +48,8 @@ auth-service/
 ├── buildSrc/
 │   ├── settings.gradle.kts       (loads both local libs + coreLibs catalogs)
 │   └── build.gradle.kts          (depends on example-plugin)
-├── api/                          (DTOs, requests, responses)
-├── jwt-api/                      (JWT interfaces: JwtService, JwtTokenProvider)
+├── api/                          (REST DTOs: LoginRequest/Response, LogoutRequest)
+├── jwt-api/                      (AuthToken, SessionData, Tenant, exceptions, JWT interfaces)
 ├── jwt-impl/                     (JJWT-based implementation of jwt-api)
 ├── persistence/                  (Redis repositories, JPA tenant entities)
 ├── service/                      (Business logic: auth, session, tenant)
@@ -80,26 +80,36 @@ Auth-specific:
 
 ## Module Breakdown
 
-### 1. `api/` -- DTOs and Domain Models
+### 1. `api/` -- REST DTOs
 
 Key classes in `com.example.auth.api`:
+
+- `LoginRequest` / `LoginResponse`
+- `LogoutRequest`
+
+Request/response types for auth REST endpoints only. Domain models and exceptions live in `jwt-api/`.
+
+### 2. `jwt-api/` -- Domain Models, Exceptions, and JWT Interfaces
+
+Key classes in `com.example.auth.jwt`:
+
+**Domain models:**
 
 - `AuthToken` -- minimal JWT payload (userId, sessionId, tenantId, issuedAt, expiresAt)
 - `SessionData` -- full session from Redis (sessionId, userId, tenantId, username, email, roles, permissions, scopes, keycloakAccessToken, keycloakRefreshToken, createdAt, lastAccessedAt, expiresAt)
 - `Tenant` -- domain model (tenantId, name, subdomain, customDomains, isDefault, isActive, createdAt, updatedAt)
-- `LoginRequest` / `LoginResponse`
-- `LogoutRequest`
-- Exception classes: `TenantNotFoundException`, `SessionExpiredException`, `AuthenticationException`
 
-### 2. `jwt-api/` -- JWT Interfaces
+**Exceptions:**
 
-Key classes in `com.example.auth.jwt`:
+- `TenantNotFoundException`, `SessionExpiredException`, `AuthenticationException`
 
-- `JwtService` interface -- generate, validate, refresh, and extract tokens (operates on `AuthToken` from `api`)
+**JWT interfaces:**
+
+- `JwtService` interface -- generate, validate, refresh, and extract tokens (operates on `AuthToken`)
 - `JwtTokenProvider` interface -- low-level token creation and parsing abstraction
 - `JwtProperties` interface -- contract for JWT configuration (secret, issuer, expiration)
 
-This module depends only on `api/` and contains no Spring or implementation dependencies. The concrete implementation lives in `jwt-impl/`.
+This module has no dependency on `api/` and contains no Spring or implementation dependencies. The concrete implementation lives in `jwt-impl/`.
 
 ### 3. `jwt-impl/` -- JWT Implementation
 
@@ -108,7 +118,7 @@ Key classes in `com.example.auth.jwt.impl` (or `com.example.auth.jwt`):
 - `JwtServiceImpl` -- JJWT-based implementation of `JwtService` from `jwt-api`
 - Implements token generation, validation, refresh, and extraction using io.jsonwebtoken (JJWT)
 
-This module depends on `jwt-api` and `jjwt-*` only. The `service/` module depends on `jwt-api` (interfaces) and receives the implementation at runtime via dependency injection; `application/` (or `web/`) brings `jwt-impl` onto the classpath so Spring can instantiate `JwtServiceImpl`.
+This module depends on `jwt-api` and `jjwt-`* only. The `service/` module depends on `jwt-api` (interfaces) and receives the implementation at runtime via dependency injection; `application/` (or `web/`) brings `jwt-impl` onto the classpath so Spring can instantiate `JwtServiceImpl`.
 
 ### 4. `persistence/` -- Repository Interfaces and Redis/DB Implementation
 
@@ -220,11 +230,11 @@ ktor-serialization-jackson = { module = "io.ktor:ktor-serialization-jackson", ve
 ### Module dependencies summary
 
 - `api` -> `coreLibs.core.platform` (BOM), `coreLibs.core.api`
-- `jwt-api` -> `api` (interfaces only, no Spring or JJWT dependencies)
+- `jwt-api` -> no internal deps (domain models, exceptions, JWT interfaces; no Spring or JJWT)
 - `jwt-impl` -> `jwt-api`, `jjwt-*` (JJWT-based implementation; no dependency from service)
-- `persistence` -> `api`, `spring-boot-starter-data-redis-reactive`, `spring-boot-starter-data-r2dbc`, `caffeine`, `coreLibs.core.persistence`
-- `service` -> `api`, `jwt-api`, `persistence`, `ktor-client-*`, `coreLibs.core.service` (uses JwtService interface only)
-- `web` -> `service`, `jwt-api`, `spring-boot-starter-security`, `spring-boot-starter-webflux`, `coreLibs.core.web`
+- `persistence` -> `jwt-api`, `spring-boot-starter-data-redis-reactive`, `spring-boot-starter-data-r2dbc`, `caffeine`, `coreLibs.core.persistence`
+- `service` -> `api`, `jwt-api`, `persistence`, `ktor-client-*`, `coreLibs.core.service` (uses JwtService interface and domain types from jwt-api)
+- `web` -> `service`, `api`, `jwt-api`, `spring-boot-starter-security`, `spring-boot-starter-webflux`, `coreLibs.core.web`
 - `application` -> `web`, `jwt-impl`, Spring Boot plugin, `spring-boot-starter`, H2/R2DBC drivers (jwt-impl on classpath so JwtServiceImpl bean is available)
 
 ## Key Architecture Flows
