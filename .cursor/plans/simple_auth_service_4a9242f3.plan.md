@@ -23,8 +23,11 @@ todos:
   - id: application-module
     content: "Create application module: build.gradle.kts, AuthServiceApplication.kt, application.yaml, application-local.yaml, data.sql"
     status: pending
+  - id: integration-tests
+    content: "Create integration tests in application module: LoginLogoutIntegrationTest.kt covering login success, login failure, logout, and unauthenticated access"
+    status: pending
   - id: verify-build
-    content: Run Gradle build to verify compilation and configuration
+    content: Run Gradle build and tests to verify compilation and test results
     status: pending
 isProject: false
 ---
@@ -72,7 +75,7 @@ This is a temporary submodule that will eventually be replaced by an external `u
 **Files:**
 
 - `UserResponse.kt` (package `com.example.user.api`) -- Data class with `id: Long`, `username: String`, `roles: Set<String>`.
-- `UserEntity.kt` (package `com.example.user.persistence`) -- JPA `@Entity` with fields: `id` (generated), `username` (unique), `password` (BCrypt-encoded), `roles` (`@ElementCollection` eager-fetched `Set<String>`).
+- `UserEntity.kt` (package `com.example.user.persistence`) -- JPA `@Entity` with `@Table(name = "users")`. Fields: `id` (generated), `username` (unique), `password` (BCrypt-encoded), `roles` (`@ElementCollection` eager-fetched `Set<String>` with `@CollectionTable(name = "user_roles")`). Explicit table names ensure `data.sql` can reference stable table names.
 - `UserRepository.kt` (package `com.example.user.persistence`) -- `JpaRepository<UserEntity, Long>` with `fun findByUsername(username: String): UserEntity?`.
 
 ### 3. `api` Module
@@ -110,14 +113,28 @@ This is a temporary submodule that will eventually be replaced by an external `u
 
 ### 7. `application` Module
 
-**Build:** Plugin `example.kotlin-conventions` + `spring.boot`. Depends on `coreLibs.core.platform`, `coreLibs.core.application`, `project(":web")`, `project(":user-service-client")`, `spring-boot-starter`, and `runtimeOnly("com.h2database:h2")`.
+**Build:** Plugin `example.kotlin-conventions` + `spring.boot`. Depends on `coreLibs.core.platform`, `coreLibs.core.application`, `project(":web")`, `project(":user-service-client")`, `spring-boot-starter`, `runtimeOnly("com.h2database:h2")`, `testImplementation("org.springframework.boot:spring-boot-starter-test")`, and `testImplementation("org.springframework.security:spring-security-test")`.
 
 **Files:**
 
 - `AuthServiceApplication.kt` -- `@SpringBootApplication(scanBasePackages = ["com.example.auth", "com.example.user"])` with `main` function.
 - `application.yaml` -- App name `auth-service`, default `local` profile, datasource placeholders, JPA `ddl-auto: validate`, port `8080`.
 - `application-local.yaml` -- H2 in-memory DB config with `create-drop`, SQL logging, H2 console enabled, `defer-datasource-initialization: true`.
-- `data.sql` -- Seed script that inserts a test user (`admin` / `admin`) with BCrypt-encoded password and an `ADMIN` role so the default login page is usable out of the box.
+- `data.sql` -- Seed script that inserts into the `users` and `user_roles` tables. Creates a test user (`test` / BCrypt-encoded `test`) with the `ROLE_ADMIN` role so the default login page is usable out of the box.
+
+### 8. Integration Tests (in `application` module)
+
+Tests live in `application/src/test/kotlin/com/example/auth/application/`. Uses `@SpringBootTest` with `@AutoConfigureMockMvc` and `@ActiveProfiles("local")` to boot the full context against the H2 database seeded by `data.sql`.
+
+**Dependencies** (already listed in application build): `spring-boot-starter-test` and `spring-security-test`.
+
+**File: `LoginLogoutIntegrationTest.kt`** -- Integration test class covering:
+
+- **Unauthenticated access redirects to login** -- `GET /api/users/me` without authentication returns `302` redirect to `/login`.
+- **Login with valid credentials succeeds** -- `POST /login` with `username=test&password=test` (+ CSRF via `SecurityMockMvcRequestPostProcessors.csrf()`) returns `302` redirect to `/` (default success URL).
+- **Login with invalid credentials fails** -- `POST /login` with wrong password (+ CSRF) returns `302` redirect to `/login?error`.
+- **Logout succeeds** -- `POST /logout` with CSRF and an authenticated session returns `302` redirect to `/login?logout`.
+- **Authenticated user can access protected endpoint** -- Using `SecurityMockMvcRequestPostProcessors.httpBasic()` or performing a form login first, then `GET /api/users/me` returns `200` with the user's JSON.
 
 ## Authentication Flow
 
@@ -188,5 +205,7 @@ auth-service/
       application.yaml
       application-local.yaml
       data.sql
+    src/test/kotlin/com/example/auth/application/
+      LoginLogoutIntegrationTest.kt
 ```
 
