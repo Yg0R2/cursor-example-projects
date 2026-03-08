@@ -11,9 +11,6 @@ todos:
   - id: api-module
     content: "Create api module: build.gradle.kts with placeholder (auth-specific DTOs only)"
     status: pending
-  - id: persistence-module
-    content: "Create persistence module: build.gradle.kts with placeholder (auth-specific persistence only)"
-    status: pending
   - id: service-module
     content: "Create service module: build.gradle.kts and AuthUserDetailsService.kt (depends on user-service-client)"
     status: pending
@@ -45,7 +42,6 @@ graph TD
     Web --> Svc[service]
     Web --> UserClient
     Svc --> Api[api]
-    Svc --> Persistence[persistence]
     Svc --> UserClient
     Client[client] --> Api
     UserClient -.->|"temporary, will become external dependency"| UserClient
@@ -59,7 +55,7 @@ graph TD
 
 Create the following files by copying and adapting from `service-template`:
 
-- `**auth-service/settings.gradle.kts**` -- Same as [service-template/settings.gradle.kts](service-template/settings.gradle.kts) but with `rootProject.name = "auth-service"`. Include modules: `user-service-client`, `api`, `client`, `persistence`, `service`, `web`, `application`.
+- `**auth-service/settings.gradle.kts**` -- Same as [service-template/settings.gradle.kts](service-template/settings.gradle.kts) but with `rootProject.name = "auth-service"`. Include modules: `user-service-client`, `api`, `client`, `service`, `web`, `application`.
 - `**auth-service/build.gradle.kts**` -- Empty root, same as [service-template/build.gradle.kts](service-template/build.gradle.kts).
 - `**auth-service/gradle.properties**` -- Set `group=com.example.auth`, `version=0.0.1-SNAPSHOT`, `coreCatalogVersion=0.0.1-SNAPSHOT`.
 - `**auth-service/gradle/libs.versions.toml**` -- Same as [service-template/gradle/libs.versions.toml](service-template/gradle/libs.versions.toml).
@@ -71,7 +67,7 @@ Create the following files by copying and adapting from `service-template`:
 
 This is a temporary submodule that will eventually be replaced by an external `user-service-client` dependency once the `user-service` is built. It contains all user-related API and persistence classes.
 
-**Build:** Plugin `example.spring-module-conventions`, depends on `coreLibs.core.api`, `coreLibs.core.persistence`, `spring-boot-starter-validation`, `spring-boot-starter-data-jpa`.
+**Build:** Plugin `example.spring-module-conventions`, depends on `coreLibs.core.api`, `coreLibs.core.client`, `coreLibs.core.persistence`, `spring-boot-starter-validation`, `spring-boot-starter-data-jpa`.
 
 **Files:**
 
@@ -87,23 +83,15 @@ This is a temporary submodule that will eventually be replaced by an external `u
 
 - `AuthApiPlaceholder.kt` -- Placeholder object (same pattern as service-template). Auth-specific DTOs can be added here in the future.
 
-### 4. `persistence` Module
+### 4. `service` Module
 
-**Build:** Plugin `example.spring-module-conventions`, depends on `coreLibs.core.persistence` + `spring-boot-starter-data-jpa`.
-
-**Files (package `com.example.auth.persistence`):**
-
-- `AuthPersistencePlaceholder.kt` -- Placeholder object (same pattern as service-template). Auth-specific entities can be added here in the future.
-
-### 5. `service` Module
-
-**Build:** Plugin `example.spring-module-conventions`, depends on `coreLibs.core.service`, `project(":api")`, `project(":persistence")`, `project(":user-service-client")`, `spring-boot-starter` and `spring-boot-starter-security`.
+**Build:** Plugin `example.spring-module-conventions`, depends on `coreLibs.core.service`, `project(":api")`, `project(":user-service-client")`, `spring-boot-starter` and `spring-boot-starter-security`.
 
 **Files (package `com.example.auth.service`):**
 
 - `AuthUserDetailsService.kt` -- `@Service` implementing Spring Security `UserDetailsService`. Loads the user from `UserRepository.findByUsername()` (from `user-service-client`) and maps to `org.springframework.security.core.userdetails.User` with granted authorities from `roles`.
 
-### 6. `web` Module
+### 5. `web` Module
 
 **Build:** Plugin `example.spring-module-conventions`, depends on `coreLibs.core.web`, `project(":service")`, `project(":user-service-client")`, `spring-boot-starter-web`, `spring-boot-starter-security`.
 
@@ -116,11 +104,11 @@ This is a temporary submodule that will eventually be replaced by an external `u
   - `PasswordEncoder` bean returning `BCryptPasswordEncoder`.
 - `UserController.kt` -- `@RestController` mapped to `/api/users`. Single endpoint `GET /api/users/me` returning the currently authenticated user as `UserResponse` (from `com.example.user.api`, extracted from `Principal`).
 
-### 7. `client` Module
+### 6. `client` Module
 
 **Build:** Plugin `example.spring-module-conventions`, depends on `coreLibs.core.client`, `project(":api")`, `spring-boot-starter-webflux`. Contains only a placeholder object `AuthClientPlaceholder.kt` (same pattern as service-template).
 
-### 8. `application` Module
+### 7. `application` Module
 
 **Build:** Plugin `example.kotlin-conventions` + `spring.boot`. Depends on `coreLibs.core.platform`, `coreLibs.core.application`, `project(":web")`, `project(":user-service-client")`, `spring-boot-starter`, and `runtimeOnly("com.h2database:h2")`.
 
@@ -183,10 +171,6 @@ auth-service/
     build.gradle.kts
     src/main/kotlin/com/example/auth/client/
       AuthClientPlaceholder.kt
-  persistence/
-    build.gradle.kts
-    src/main/kotlin/com/example/auth/persistence/
-      AuthPersistencePlaceholder.kt
   service/
     build.gradle.kts
     src/main/kotlin/com/example/auth/service/
