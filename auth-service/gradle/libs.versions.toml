@@ -1,0 +1,9 @@
+[versions]
+example-plugin = "0.0.1-SNAPSHOT"
+
+[libraries]
+example-plugin = { module = "com.example.gradle:example-plugin", version.ref = "example-plugin" }
+# Additional service-specific dependencies can be added here
+
+[plugins]
+# Additional service-specific plugins can be added here

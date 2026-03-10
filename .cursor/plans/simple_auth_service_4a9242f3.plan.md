@@ -4,28 +4,28 @@ overview: Create a simple Spring Security auth-service at `./auth-service` mirro
 todos:
   - id: scaffold
     content: "Create Gradle scaffolding: settings.gradle.kts, build.gradle.kts, gradle.properties, libs.versions.toml, buildSrc, Gradle wrapper"
-    status: pending
+    status: completed
   - id: user-service-client-module
     content: "Create user-service-client submodule: build.gradle.kts, UserResponse.kt (com.example.user.api), UserEntity.kt and UserRepository.kt (com.example.user.persistence)"
-    status: pending
+    status: completed
   - id: api-module
     content: "Create api module: build.gradle.kts with placeholder (auth-specific DTOs only)"
-    status: pending
+    status: completed
   - id: service-module
     content: "Create service module: build.gradle.kts and AuthUserDetailsService.kt (depends on user-service-client)"
-    status: pending
+    status: completed
   - id: web-module
     content: "Create web module: build.gradle.kts, SecurityConfig.kt (default form login), UserController.kt (depends on user-service-client)"
-    status: pending
+    status: completed
   - id: client-module
     content: "Create client module: build.gradle.kts and AuthClientPlaceholder.kt"
-    status: pending
+    status: completed
   - id: application-module
     content: "Create application module: build.gradle.kts, AuthServiceApplication.kt, application.yaml, application-local.yaml, data.sql"
-    status: pending
+    status: completed
   - id: integration-tests
     content: "Create integration tests in application module: LoginLogoutIntegrationTest.kt covering login success, login failure, logout, and unauthenticated access"
-    status: pending
+    status: in_progress
   - id: verify-build
     content: Run Gradle build and tests to verify compilation and test results
     status: pending
