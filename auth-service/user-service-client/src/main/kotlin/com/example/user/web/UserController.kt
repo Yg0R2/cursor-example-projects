@@ -1,4 +1,4 @@
-package com.example.auth.web
+package com.example.user.web
 
 import com.example.user.api.UserResponse
 import com.example.user.persistence.UserRepository
@@ -16,18 +16,16 @@ class UserController(
 ) {
 
     @GetMapping("/me")
-    fun me(@AuthenticationPrincipal principal: User?): ResponseEntity<UserResponse> {
-        if (principal == null) {
-            return ResponseEntity.notFound().build()
-        }
-        val entity = userRepository.findByUsername(principal.username)
-            ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(
-            UserResponse(
-                id = entity.id,
-                username = entity.username,
-                roles = entity.roles
-            )
-        )
-    }
+    fun me(@AuthenticationPrincipal principal: User?): ResponseEntity<UserResponse> =
+        principal
+            ?.let { userRepository.findByUsername(it.username) }
+            ?.let {
+                UserResponse(
+                    id = it.id,
+                    username = it.username,
+                    roles = it.roles,
+                )
+            }?.let { ResponseEntity.ok(it) }
+            ?: ResponseEntity.notFound().build()
+
 }

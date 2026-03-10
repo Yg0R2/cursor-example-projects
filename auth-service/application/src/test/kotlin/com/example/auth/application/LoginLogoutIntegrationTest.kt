@@ -12,7 +12,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("local")
+@ActiveProfiles("integration-test")
 class LoginLogoutIntegrationTest {
 
     @Autowired
@@ -22,7 +22,7 @@ class LoginLogoutIntegrationTest {
     fun unauthenticatedAccessRedirectsToLogin() {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/users/me"))
             .andExpect(MockMvcResultMatchers.status().isFound)
-            .andExpect(MockMvcResultMatchers.redirectedUrlPattern("**/login"))
+            .andExpect(MockMvcResultMatchers.redirectedUrl("/login"))
     }
 
     @Test

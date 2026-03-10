@@ -25,10 +25,10 @@ todos:
     status: completed
   - id: integration-tests
     content: "Create integration tests in application module: LoginLogoutIntegrationTest.kt covering login success, login failure, logout, and unauthenticated access"
-    status: in_progress
+    status: completed
   - id: verify-build
     content: Run Gradle build and tests to verify compilation and test results
-    status: pending
+    status: completed
 isProject: false
 ---
 

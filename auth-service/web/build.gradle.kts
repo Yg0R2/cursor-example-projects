@@ -8,6 +8,7 @@ dependencies {
     api(coreLibs.core.web)
     api(project(":service"))
     api(project(":user-service-client"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
+
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-web")
 }
