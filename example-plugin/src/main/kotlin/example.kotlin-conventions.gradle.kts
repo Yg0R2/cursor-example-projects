@@ -21,3 +21,7 @@ kotlin {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
     }
 }
+
+dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+}
