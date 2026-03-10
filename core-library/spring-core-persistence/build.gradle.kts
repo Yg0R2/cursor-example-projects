@@ -7,5 +7,5 @@ dependencies {
     api(platform(project(":spring-core-platform")))
     api(project(":core-persistence"))
 
-    implementation(libs.spring.boot.starter.data.jpa)
+    api(libs.spring.boot.starter.data.jpa)
 }

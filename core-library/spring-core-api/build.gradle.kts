@@ -8,5 +8,5 @@ dependencies {
     api(project(":core-api"))
 
     // Optional: Spring validation support
-    implementation(libs.spring.boot.starter.validation)
+    api(libs.spring.boot.starter.validation)
 }

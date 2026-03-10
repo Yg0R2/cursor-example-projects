@@ -8,5 +8,5 @@ dependencies {
     api(project(":core-web"))
     api(project(":spring-core-service"))
 
-    implementation(libs.spring.boot.starter.web)
+    api(libs.spring.boot.starter.web)
 }
