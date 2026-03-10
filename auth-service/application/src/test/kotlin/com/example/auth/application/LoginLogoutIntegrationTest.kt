@@ -1,15 +1,9 @@
 package com.example.auth.application
 
-import com.example.user.persistence.UserEntity
-import com.example.user.persistence.UserRepository
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Import
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -19,7 +13,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")
-@Import(LoginLogoutIntegrationTest.TestUserConfig::class)
 class LoginLogoutIntegrationTest {
 
     @Autowired
@@ -78,31 +71,4 @@ class LoginLogoutIntegrationTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.roles").isArray)
     }
 
-    @TestConfiguration
-    class TestUserConfig(
-        private val userRepository: UserRepository,
-        private val passwordEncoder: PasswordEncoder
-    ) {
-        @Bean
-        fun testUserInitializer(): TestUserInitializer =
-            TestUserInitializer(userRepository, passwordEncoder)
-    }
-
-    class TestUserInitializer(
-        private val userRepository: UserRepository,
-        private val passwordEncoder: PasswordEncoder
-    ) {
-        @jakarta.annotation.PostConstruct
-        fun createTestUser() {
-            if (userRepository.findByUsername("test") == null) {
-                userRepository.save(
-                    UserEntity(
-                        username = "test",
-                        password = passwordEncoder.encode("test")!!,
-                        roles = mutableSetOf("ROLE_ADMIN")
-                    )
-                )
-            }
-        }
-    }
 }

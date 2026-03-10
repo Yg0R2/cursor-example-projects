@@ -1,5 +1,6 @@
 package com.example.user.persistence
 
+import com.example.core.persistence.model.ExampleEntity
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
@@ -9,13 +10,14 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.util.UUID
 
 @Entity
 @Table(name = "users")
-class UserEntity(
+data class UserEntity(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    val id: UUID = UUID.randomUUID(),
 
     @Column(unique = true, nullable = false)
     var username: String,
@@ -27,4 +29,4 @@ class UserEntity(
     @CollectionTable(name = "user_roles")
     @Column(name = "role")
     var roles: MutableSet<String> = mutableSetOf()
-)
+) : ExampleEntity
